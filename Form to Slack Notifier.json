@@ -1,0 +1,154 @@
+{
+  "name": "Form to Slack Notifier",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Request an Installtion",
+        "formDescription": "Fill out this form to request an Installtaion. Our team will connect you for appointment",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Email Address",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Preferred Date",
+              "fieldType": "date"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "2f0bb3c7-190a-4ef4-bbf4-b4316434ec67",
+      "name": "On form submission",
+      "webhookId": "ffcbf068-fd21-4f4e-ae0a-b1d85142404e"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "1dfe127e-58d2-44d4-a347-21b58bd85db8",
+              "leftValue": "={{ DateTime.fromISO($json['Preferred Date'])  }}",
+              "rightValue": "={{ $now.toDateTime().plus(7, 'days')}}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "beforeOrEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        208,
+        0
+      ],
+      "id": "e6c03ab3-75f2-440a-8e21-eeffdb837288",
+      "name": "is within 7 days?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        480,
+        176
+      ],
+      "id": "86108b21-e824-4796-a347-ec560d744a75",
+      "name": "todo"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0AJ4LUKUB1",
+          "mode": "list",
+          "cachedResultName": "all-book-an-installation"
+        },
+        "text": "=New Install Request (With in 7 days)\nContact Email: {{ $json['Email Address'] }}\nPreferred Install Date: {{ $json['Preferred Date'] }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        416,
+        -32
+      ],
+      "id": "133ad98a-f946-4996-886d-c12de7586b8a",
+      "name": "Send a message",
+      "webhookId": "012652fd-fe59-47d9-b850-102766c1aa1a",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "RWTCY3Dk3OBdApxC",
+          "name": "Slack account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "is within 7 days?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "is within 7 days?": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "todo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "4f5ac324-a5df-4f8f-a767-52abc9fd3d15",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "38c6cccb4e660ea7296b44cdd2073947743db994f53e3707bd966c127735d4a2"
+  },
+  "id": "OrDGk3Wdpa4N13RD",
+  "tags": []
+}
